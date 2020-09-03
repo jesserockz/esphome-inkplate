@@ -21,6 +21,7 @@ class Inkplate : public PollingComponent,
 
   void set_greyscale(bool greyscale) {
     this->greyscale_ = greyscale;
+    this->initialize_();
     this->block_partial_ = true;
   }
   void set_partial_updating(bool partial_updating) { this->partial_updating_ = partial_updating; }
