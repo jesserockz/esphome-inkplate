@@ -78,13 +78,13 @@ size_t Inkplate::get_buffer_length_() {
   }
 }
 void Inkplate::update() {
-  ESP_LOGV(TAG, "Update called");
-  unsigned long start_time = millis();
-  ESP_LOGV(TAG, "do_update_ started (%dms)", millis() - start_time);
   this->do_update_();
-  ESP_LOGV(TAG, "do_update_ finished (%dms)", millis() - start_time);
+
+  if (this->full_update_every_ > 0 && this->partial_updates_ >= this->full_update_every_) {
+    this->block_partial_ = true;
+  }
+
   this->display();
-  ESP_LOGV(TAG, "Update finished (%dms)", millis() - start_time);
 }
 void HOT Inkplate::draw_absolute_pixel_internal(int x, int y, Color color) {
   if (x >= this->get_width_internal() || y >= this->get_height_internal() || x < 0 || y < 0)
@@ -113,7 +113,31 @@ void HOT Inkplate::draw_absolute_pixel_internal(int x, int y, Color color) {
 }
 void Inkplate::dump_config() {
   LOG_DISPLAY("", "Inkplate", this);
+  ESP_LOGCONFIG(TAG, "  Greyscale: %s", YESNO(this->greyscale_));
+  ESP_LOGCONFIG(TAG, "  Partial Updating: %s", YESNO(this->partial_updating_));
+  ESP_LOGCONFIG(TAG, "  Full Update Every: %d", this->full_update_every_);
   // Log pins
+  LOG_PIN("  CKV Pin: ", this->ckv_pin_);
+  LOG_PIN("  CL Pin: ", this->cl_pin_);
+  LOG_PIN("  GPIO0 Enable Pin: ", this->gpio0_enable_pin_);
+  LOG_PIN("  GMOD Pin: ", this->gmod_pin_);
+  LOG_PIN("  LE Pin: ", this->le_pin_);
+  LOG_PIN("  OE Pin: ", this->oe_pin_);
+  LOG_PIN("  POWERUP Pin: ", this->powerup_pin_);
+  LOG_PIN("  SPH Pin: ", this->sph_pin_);
+  LOG_PIN("  SPV Pin: ", this->spv_pin_);
+  LOG_PIN("  VCOM Pin: ", this->vcom_pin_);
+  LOG_PIN("  WAKEUP Pin: ", this->wakeup_pin_);
+
+  LOG_PIN("  Data 0 Pin: ", this->display_data_0_pin_);
+  LOG_PIN("  Data 1 Pin: ", this->display_data_1_pin_);
+  LOG_PIN("  Data 2 Pin: ", this->display_data_2_pin_);
+  LOG_PIN("  Data 3 Pin: ", this->display_data_3_pin_);
+  LOG_PIN("  Data 4 Pin: ", this->display_data_4_pin_);
+  LOG_PIN("  Data 5 Pin: ", this->display_data_5_pin_);
+  LOG_PIN("  Data 6 Pin: ", this->display_data_6_pin_);
+  LOG_PIN("  Data 7 Pin: ", this->display_data_7_pin_);
+
   LOG_UPDATE_INTERVAL(this);
 }
 void Inkplate::eink_off_() {
@@ -311,6 +335,7 @@ void Inkplate::display1b_() {
   vscan_start_();
   eink_off_();
   this->block_partial_ = false;
+  this->partial_updates_ = 0;
   ESP_LOGV(TAG, "Display1b finished (%dms)", millis() - start_time);
 }
 void Inkplate::display3b_() {
@@ -387,6 +412,8 @@ bool Inkplate::partial_update_() {
     return false;
   if (this->block_partial_)
     return false;
+
+  this->partial_updates_++;
 
   uint16_t pos = this->get_buffer_length_() - 1;
   uint32_t send;
