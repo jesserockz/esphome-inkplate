@@ -151,4 +151,4 @@ class Inkplate : public PollingComponent,
 };
 
 }  // namespace inkplate
-}  // namespave esphome
+}  // namespace esphome
