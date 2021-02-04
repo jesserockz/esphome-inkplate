@@ -94,6 +94,8 @@ time:
   - platform: sntp
     id: esptime
 
+# For hassio flashed images, put these in ~/config/esphome.
+# The easiest way is to cURL Helvetica.ttf from a published web source
 font:
   - file: "Helvetica.ttf"
     id: helvetica_96
