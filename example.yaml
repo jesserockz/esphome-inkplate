@@ -104,7 +104,7 @@ font:
 
 
 display:
-- platform: inkplate
+- platform: inkplate6
   id: inkplate_display
   greyscale: false
   partial_updating: false
