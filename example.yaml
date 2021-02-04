@@ -109,6 +109,12 @@ display:
   greyscale: false
   partial_updating: false
   update_interval: 60s
+  rotation: 270º
+  # display.platform.rotation
+  # 0º (default):   Horizontal/Landscape, USB port on right
+  # 90º:            Vertical/Portrait, USB port on top
+  # 180º:           Horizontal/Landscape, USB port on left
+  # 270º:           Vertical/Portrait, USB port on bottom
 
   ckv_pin: 32
   sph_pin: 33
